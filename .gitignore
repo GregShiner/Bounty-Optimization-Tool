@@ -3,4 +3,11 @@ bin/
 include/
 lib/
 share/
+Scripts/
 pyvenv.cfg
+
+#VSCode
+.vscode/
+
+#python
+__pycache__/
