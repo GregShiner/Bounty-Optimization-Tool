@@ -11,3 +11,6 @@ pyvenv.cfg
 
 #python
 __pycache__/
+
+#environment variables
+.env
