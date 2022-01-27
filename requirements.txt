@@ -1,4 +1,5 @@
 git+https://github.com/nxtlo/aiobungie
 flask
+flask-cors
 python-dotenv
 pyopenssl
