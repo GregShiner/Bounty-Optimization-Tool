@@ -37,6 +37,15 @@ async def authorizeUser():
         }
         return response
 
+@app.route("/player")
+async def getPlayer(token=None, internal=False):
+    if not token:
+        token = request.headers["Authorization"]
+    player = await client.fetch_current_user_memberships(token)
+    if internal:
+        return player
+    return str(player.primary_membership_id)
+
 async def generate_oauth_url() -> None:
     async with aiobungie.RESTClient(key, client_id=client_id, client_secret=client_secret) as restClient:
         return restClient.build_oauth2_url()
