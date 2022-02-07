@@ -1,4 +1,4 @@
-git+https://github.com/nxtlo/aiobungie
+aiobungie==0.2.5
 flask
 flask-cors
 python-dotenv
