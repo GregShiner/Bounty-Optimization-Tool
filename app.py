@@ -1,10 +1,11 @@
 import aiobungie
 from os import environ
 from dotenv import load_dotenv
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pprint # debugging purposes only
 from inspect import getmembers # debugging purposes only
+import sqlite3
 
 baseurl = "https://localhost:5000"
 
@@ -18,6 +19,7 @@ client_id = environ["client_id"]
 client_secret = environ["client_secret"]
 
 pp = pprint.PrettyPrinter(indent=4)
+
 @app.route("/oauth-url", methods=["GET"])
 async def getOauthUrl():
     url = await generate_oauth_url()
@@ -41,6 +43,12 @@ async def authorizeUser():
 async def generate_oauth_url() -> None:
     async with aiobungie.RESTClient(key, client_id=client_id, client_secret=client_secret) as restClient:
         return restClient.build_oauth2_url()
+
+@app.route("/manifest", methods=["POST"])
+async def fetchManifest():
+    async with aiobungie.RESTClient(key) as restClient:
+        await restClient.download_manifest()
+    return jsonify(success=True)
 
 if __name__ == "__main__":
     app.run()
