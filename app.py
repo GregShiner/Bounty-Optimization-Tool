@@ -40,7 +40,7 @@ async def authorizeUser():
         }
         return response
 
-async def generate_oauth_url() -> None:
+async def generate_oauth_url():
     async with aiobungie.RESTClient(key, client_id=client_id, client_secret=client_secret) as restClient:
         return restClient.build_oauth2_url()
 
