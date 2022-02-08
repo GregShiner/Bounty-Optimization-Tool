@@ -15,8 +15,6 @@ key = environ["key"]
 client_id = environ["client_id"]
 client_secret = environ["client_secret"]
 
-client = aiobungie.Client(key)
-
 @app.route("/oauth-url", methods=["GET"])
 async def getOauthUrl():
     url = await generate_oauth_url()
