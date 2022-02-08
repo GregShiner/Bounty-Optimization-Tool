@@ -3,6 +3,8 @@ from os import environ
 from dotenv import load_dotenv
 from flask import Flask, request
 from flask_cors import CORS
+import pprint # debugging purposes only
+from inspect import getmembers # debugging purposes only
 
 baseurl = "https://localhost:5000"
 
@@ -15,6 +17,7 @@ key = environ["key"]
 client_id = environ["client_id"]
 client_secret = environ["client_secret"]
 
+pp = pprint.PrettyPrinter(indent=4)
 @app.route("/oauth-url", methods=["GET"])
 async def getOauthUrl():
     url = await generate_oauth_url()
