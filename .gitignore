@@ -16,3 +16,4 @@ __pycache__/
 
 #environment variables
 .env
+manifest.sqlite3
