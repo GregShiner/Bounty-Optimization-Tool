@@ -1,3 +1,4 @@
+from __future__ import annotations
 import aiobungie
 from os import environ
 from dotenv import load_dotenv
@@ -5,6 +6,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pprint # debugging purposes only
 from inspect import getmembers # debugging purposes only
+import dill
 import sqlite3
 
 baseurl = "https://localhost:5000"
@@ -44,6 +46,32 @@ async def generate_oauth_url():
     async with aiobungie.RESTClient(key, client_id=client_id, client_secret=client_secret) as restClient:
         return restClient.build_oauth2_url()
 
+@app.route("/quests", methods=["GET"])
+async def getQuests():
+    try:
+        client = aiobungie.Client(key)
+        user = await client.fetch_current_user_memberships(request.headers["Authorization"])
+        memberships = user.destiny
+        primary_membership = user.primary_membership_id
+        membership = list(filter(lambda membership: membership.id == primary_membership, memberships))[0]
+        component = await membership.fetch_self_profile(*(aiobungie.ComponentType.CHARACTER_INVENTORY, aiobungie.ComponentType.ITEM_OBJECTIVES, aiobungie.ComponentType.ITEM_INSTANCES, aiobungie.ComponentType.CHARACTERS))
+        inventories = [inventory for inventory in component.character_inventories.values()][2]
+        items = []
+        for item in inventories:
+            try:
+                items.append(await item.fetch_self())
+            except Exception as e:
+                if ("tierTypeName" in str(e)) or ("ItemTier" in str(e)):
+                    continue
+                else:
+                    raise e
+        quests = list(filter(lambda item: item.type == aiobungie.ItemType.BOUNTY, items))
+        return str(quests)
+
+    except Exception as e:
+        raise e
+    finally:
+        await client.rest.close()
 @app.route("/manifest", methods=["POST"])
 async def fetchManifest():
     async with aiobungie.RESTClient(key) as restClient:
