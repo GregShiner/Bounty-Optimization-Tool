@@ -1,0 +1,10 @@
+--- lib/python3.9/site-packages/aiobungie/crate/entity.py	2022-02-07 12:47:53.814968347 -0500
++++ entity.py	2022-02-10 20:02:08.593185700 -0500
+@@ -85,6 +85,7 @@
+     TIME_DURATION = 7
+     HIDDEN = 8
+     MULTIPLIER = 9
++    GREEN_PIPS = 10
+     RED_PIPS = 11
+     EXPLICIT_PERCENTAGE = 12
+     RAW_FLOAT = 13
