@@ -47,7 +47,7 @@ async def generate_oauth_url():
     async with aiobungie.RESTClient(key, client_id=client_id, client_secret=client_secret) as restClient:
         return restClient.build_oauth2_url()
 
-async def getBounties(component: aiobungie.crate.Component):
+async def getBounties(component: aiobungie.crate.Component) -> List[aiobungie.crate.InventoryEntity]:
     inventories = [inventory for inventory in component.character_inventories.values()][2]
     items = []
     for item in inventories:
@@ -58,8 +58,7 @@ async def getBounties(component: aiobungie.crate.Component):
                 continue
             else:
                 raise e
-    quests: List[aiobungie.crate.InventoryEntity] = list(filter(lambda item: item.type == aiobungie.ItemType.BOUNTY, items))
-    return quests
+    return list(filter(lambda item: item.type == aiobungie.ItemType.BOUNTY, items))
 
 @app.route("/overlap", methods=["GET"])
 async def getOverlap():
