@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Dict
 import aiobungie
 from os import environ
 from dotenv import load_dotenv
@@ -47,18 +47,23 @@ async def generate_oauth_url():
     async with aiobungie.RESTClient(key, client_id=client_id, client_secret=client_secret) as restClient:
         return restClient.build_oauth2_url()
 
-async def getBounties(component: aiobungie.crate.Component) -> List[aiobungie.crate.InventoryEntity]:
-    inventories = [inventory for inventory in component.character_inventories.values()][2]
-    items = []
-    for item in inventories:
-        try:
-            items.append(await item.fetch_self())
-        except Exception as e:
-            if ("tierTypeName" in str(e)) or ("ItemTier" in str(e)):
-                continue
-            else:
-                raise e
-    return list(filter(lambda item: item.type == aiobungie.ItemType.BOUNTY, items))
+async def getBounties(component: aiobungie.crate.Component) -> Dict[int, List[aiobungie.crate.InventoryEntity]]:
+    inventories: Dict[int, List[aiobungie.crate.InventoryEntity]] = {}
+    for id, inventory in component.character_inventories.items():
+        items: List[aiobungie.crate.InventoryEntity] = []
+        for item in inventory:
+            try:
+                items.append(await item.fetch_self())
+            except Exception as e:
+                if ("tierTypeName" in str(e)) or ("ItemTier" in str(e)):
+                    continue
+                else:
+                    raise e
+        inventories[id] = list(filter(lambda item: item.type == aiobungie.ItemType.BOUNTY, items))
+    return inventories
+
+async def getObjectives(component: aiobungie.crate.Component) -> List[aiobungie.crate.InventoryEntity]:
+    pass
 
 @app.route("/overlap", methods=["GET"])
 async def getOverlap():
@@ -68,8 +73,9 @@ async def getOverlap():
         memberships = user.destiny
         primary_membership = user.primary_membership_id
         membership = list(filter(lambda membership: membership.id == primary_membership, memberships))[0]
-        component: aiobungie.crate.Component = await membership.fetch_self_profile(*(aiobungie.ComponentType.CHARACTER_INVENTORY, aiobungie.ComponentType.ITEM_OBJECTIVES, aiobungie.ComponentType.ITEM_INSTANCES, aiobungie.ComponentType.CHARACTERS))
+        component: aiobungie.crate.Component = await membership.fetch_self_profile(components=[aiobungie.ComponentType.CHARACTER_INVENTORY, aiobungie.ComponentType.ITEM_OBJECTIVES, aiobungie.ComponentType.ITEM_INSTANCES, aiobungie.ComponentType.CHARACTERS])
         quests = await getBounties(component)
+
         return str(quests)
 
     except Exception as e:
@@ -83,4 +89,4 @@ async def fetchManifest():
     return jsonify(success=True)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
